@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import time
 import sendProtocols
-from testMermaid import capture_packets
+from testMermaid import capture_packets, capture_all_packets, stop_capture
 import threading
 import ipaddress
 import socket
@@ -58,6 +58,15 @@ def packet_callback(packet_info):
     # Since we're working with threads, we need to make sure updates to the GUI are thread-safe.
     # root.after is a thread-safe way to schedule updates to be run in the Tkinter main loop.
     root.after(0, add_packet_to_treeview, packet_info)
+
+def capture_all():
+    clear_view()
+    threading.Thread(target=capture_all_packets, args=(packet_callback, ), daemon=True).start()
+    print("Capture start")
+
+def stop_capture_all():
+    stop_capture()
+    print("Capture stop")
 
 def send_action():
     # Get the text from text_input Entry widget
@@ -117,10 +126,10 @@ root.resizable(False, False)
 top_frame = tk.Frame(root, height=50)
 top_frame.pack(side=tk.TOP, fill=tk.X)
 
-button1 = tk.Button(top_frame, text="Start Capture")
+button1 = tk.Button(top_frame, text="Start Capture", command=capture_all)
 button1.pack(side=tk.LEFT, padx=5, pady=5)
 
-button2 = tk.Button(top_frame, text="Stop Capture")
+button2 = tk.Button(top_frame, text="Stop Capture", command=stop_capture_all)
 button2.pack(side=tk.LEFT, padx=5, pady=5)
 
 combo_lbl = tk.Label(top_frame, text="Select Protocol:")

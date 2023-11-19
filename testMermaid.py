@@ -7,6 +7,8 @@ import socket
 from datetime import datetime
 from scapy.utils import hexdump
 
+stop_sniffing = threading.Event()
+
 packet_counter = 0
 
 # Resolve the IP address for www.google.com
@@ -92,3 +94,39 @@ def capture_packets(target_ip, targetProtocol, callback, timeout=5):
     generate_diagram_image(mermaid_file, output_image_file)
     return packets
 
+def capture_all_packets(callback):
+    stop_sniffing.clear()
+    # Define the packet processing function
+    def process_packet(packet):
+        if stop_sniffing.is_set():
+            return
+        global packet_counter
+        packet_counter += 1
+        no = packet_counter
+        readable_time = datetime.fromtimestamp(packet.time).strftime('%Y-%m-%d %H:%M:%S')  # Human-readable time
+        source = packet[IP].src
+        destination = packet[IP].dst
+        summary = packet.summary()
+        
+        # Depending on your needs, you might want to capture additional details here
+        # ...
+
+        # Create a tuple with the packet details
+        packet_info = (no, readable_time, source, destination, summary)
+        
+        # Call the callback with the packet info
+        callback(packet_info)
+
+    # Initialize the packet counter and packets list
+    global packet_counter
+    packet_counter = 0
+
+    # Construct the filter string to include only HTTP (port 80), DNS (port 53), SSH (port 22), and ICMP
+    filter_str = "(tcp port 80 or tcp port 22 or udp port 53 or icmp)"
+
+    # Start the packet capture
+    print(f"Starting packet capture with filter '{filter_str}'")
+    sniff(filter=filter_str, prn=process_packet, stop_filter=lambda _: stop_sniffing.is_set())
+
+def stop_capture():
+    stop_sniffing.set()
