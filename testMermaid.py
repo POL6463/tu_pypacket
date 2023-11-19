@@ -33,7 +33,7 @@ def generate_diagram_image(input_file, output_file):
 
 # Capture the packets
 # Capture the packets with a specified protocol
-def capture_packets(target_ip, targetProtocol, callback, timeout=10):
+def capture_packets(target_ip, targetProtocol, callback, timeout=5):
     global packet_counter
     packet_counter = 0
     # Define the packet processing function
