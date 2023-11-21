@@ -46,6 +46,8 @@ If you are using a specific Python version or have multiple Python versions inst
 
 ```
 pip3 install -r requirements.txt
+
+$ brew install python-tk
 ```
 
 To install Mermaid CLI for generating diagrams from Mermaid markdown files, use npm:

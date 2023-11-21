@@ -107,12 +107,17 @@ def capture_all_packets(callback):
         source = packet[IP].src
         destination = packet[IP].dst
         summary = packet.summary()
+
+        if packet.haslayer(TCP):
+                payload = packet.lastlayer()
+        else:
+            payload = packet.lastlayer()
         
         # Depending on your needs, you might want to capture additional details here
         # ...
 
         # Create a tuple with the packet details
-        packet_info = (no, readable_time, source, destination, summary)
+        packet_info = (no, readable_time, source, destination, summary, packet.show(dump=True), hexdump(payload, dump=True))
         
         # Call the callback with the packet info
         callback(packet_info)
